@@ -1,14 +1,20 @@
 package {
-    // See: http://go/android-license-faq
-    // A large-scale-change added 'default_applicable_licenses' to import
-    // all of the 'license_kinds' from "system_extras_verity_license"
-    // to get the below license kinds:
-    //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["system_extras_verity_license"],
+    default_applicable_licenses: ["vendor_fec_license"],
 }
 
-cc_binary_host {
-    name: "fec",
+license {
+    name: "vendor_fec_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_binary {
+    name: "fec_static",
 
     compile_multilib: "both",
     multilib: {
@@ -17,18 +23,6 @@ cc_binary_host {
         },
         lib64: {
             suffix: "",
-        },
-    },
-    target: {
-        linux_glibc: {
-            sanitize: {
-                misc_undefined: ["integer"],
-            },
-        },
-        linux: {
-            static_libs: [
-                "libavb",
-            ],
         },
     },
 
@@ -42,13 +36,58 @@ cc_binary_host {
         "libsparse",
         "libz",
         "libcrypto_utils",
-        "libcrypto",
+        "libcrypto_static",
         "libfec",
         "libfec_rs",
         "libext4_utils",
         "liblog",
         "libsquashfs_utils",
+        "libavb",
+        "libcutils",
     ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-O3",
+    ],
+}
+
+
+cc_binary {
+    name: "fec_shared",
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "",
+        },
+    },
+
+    srcs: [
+        "main.cpp",
+        "image.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libsparse",
+        "libz",
+        "libcrypto_utils",
+        "libcrypto",
+        "libfec",
+        "libext4_utils",
+        "liblog",
+        "libsquashfs_utils",
+    ],
+
+    static_libs: [
+        "libfec_rs",
+        "libavb",
+    ],
+
     cflags: [
         "-Wall",
         "-Werror",
